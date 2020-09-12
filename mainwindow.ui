@@ -6,15 +6,126 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1366</width>
+    <height>768</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Rej&amp;Olej</string>
   </property>
-  <widget class="QWidget" name="centralwidget"/>
-  <widget class="QMenuBar" name="menubar"/>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTableWidget" name="main_Table">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>40</y>
+      <width>1371</width>
+      <height>641</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_deleteVehicle">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>690</y>
+      <width>151</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Usuń pojazd</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_addVehicle">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>690</y>
+      <width>151</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Dodaj pojazd</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_addKolumn">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>690</y>
+      <width>151</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Dodaj kolumnę</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_deleteColumn">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>690</y>
+      <width>151</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Usuń kolumnę</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_sort">
+    <property name="geometry">
+     <rect>
+      <x>640</x>
+      <y>690</y>
+      <width>151</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Wybierz</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_save">
+    <property name="geometry">
+     <rect>
+      <x>1199</x>
+      <y>690</y>
+      <width>151</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Zapisz</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_addTable">
+    <property name="geometry">
+     <rect>
+      <x>1199</x>
+      <y>10</y>
+      <width>151</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Dodaj tabelę</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1366</width>
+     <height>25</height>
+    </rect>
+   </property>
+  </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
