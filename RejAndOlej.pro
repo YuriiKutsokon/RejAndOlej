@@ -17,17 +17,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    addcolumnwindow.cpp \
     addtablewindow.cpp \
     dataprocessor.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
+    addcolumnwindow.h \
     addtablewindow.h \
     dataprocessor.h \
     mainwindow.h
 
 FORMS += \
+    addcolumnwindow.ui \
     addtablewindow.ui \
     mainwindow.ui
 

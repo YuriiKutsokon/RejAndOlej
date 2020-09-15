@@ -8,13 +8,21 @@ class DataProcessor
 public:
     DataProcessor();
     DataProcessor(QString);
-    QString getCurrentTable();
-    void addTable(QString);
     QSqlQuery selectAll(QString);
+    QString getCurrentTable();
+    QString getValue(QString,int,int);
+    QString getValueParams(QStringList, QStringList);
+    void addTable(QString);
+    void addColumn(QString, QString, QString);
+    void addColumn(QString, QStringList, QStringList, QString);
+    void deleteColumn(QString, QString);
     int getColNum(QString);
     int getRowNum(QString);
     QStringList getColNames(QString);
-    QString getValue(QString,int,int);
+    QStringList getColTypes(QString);
+
+
+
 
 private:
 
