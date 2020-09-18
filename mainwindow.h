@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QKeyEvent>
 #include "addtablewindow.h"
 #include "addcolumnwindow.h"
 #include "dataprocessor.h"
@@ -27,7 +28,10 @@ private slots:
 
     void on_button_addVehicle_clicked();
 
+    void on_button_deleteTable_clicked();
+
 private:
+    bool eventFilter(QObject *obj, QEvent *evt) override;
     int DEFAULT = 0,
         ADDITIONAL_ROW = 1;
     Ui::MainWindow *ui;

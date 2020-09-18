@@ -115,6 +115,45 @@
      <string>Dodaj tabelę</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="button_deleteTable">
+    <property name="geometry">
+     <rect>
+      <x>1049</x>
+      <y>10</y>
+      <width>141</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Usuń tabelę</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_tableName">
+    <property name="geometry">
+     <rect>
+      <x>880</x>
+      <y>10</y>
+      <width>151</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string notr="true"/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>774</x>
+      <y>10</y>
+      <width>101</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Wybrana tabela:</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

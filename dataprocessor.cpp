@@ -2,25 +2,35 @@
 
 DataProcessor::DataProcessor()
 {
-
-}
-
-DataProcessor::DataProcessor(QString tableName)
-{
-    mdb = QSqlDatabase::addDatabase("QSQLITE");
+    QSqlDatabase mdb = QSqlDatabase::addDatabase("QSQLITE");
     mdb.setDatabaseName("MainData.sqlite");
     if(mdb.open())
         qDebug() << "DB is connected";
     else
         qDebug() << "DB is not connected";
+    tableNames = mdb.tables();
 
-    currentTable = tableName;
+    if (!tableNames.isEmpty())
+        setCurrentTable(tableNames[0]);
+    else
+        setCurrentTable("BD jest pusta");
+
+}
+
+DataProcessor::DataProcessor(QString tableName)
+{
+
 
 }
 
 QString DataProcessor::getCurrentTable()
 {
     return currentTable;
+}
+
+void DataProcessor::setCurrentTable(QString tableName)
+{
+    currentTable = tableName;
 }
 
 void DataProcessor::addTable(QString tableName)
@@ -32,8 +42,11 @@ void DataProcessor::addTable(QString tableName)
     if (!b)
         qDebug() << query.lastError().text();
     else
+    {
         qDebug() << "Table " + tableName + " is created!";
-    currentTable = tableName;
+        tableNames.append(tableName);
+        currentTable = tableName;
+    }
 }
 
 void DataProcessor::addColumn(QString tableName, QString newColName, QString newColType)
@@ -109,12 +122,57 @@ void DataProcessor::deleteColumn(QString tableName, QString strColNames)
 
 }
 
+void DataProcessor::deleteTable(QString tableName)
+{
+    bool b;
+    QSqlQuery query;
+    QString strQuery = "DROP TABLE " + tableName;
+
+    b = query.exec(strQuery);
+        qDebug() << query.at();
+    if (!b)
+        qDebug() << query.lastError().text();
+    else
+        qDebug() << "Table " + tableName + " was successfully deleted!";
+    tableNames.removeAt(tableNames.indexOf(tableName));
+    if (!tableNames.isEmpty())
+        currentTable = tableNames[0];
+    else
+        currentTable = "BD jest pusta!";
+}
+
+void DataProcessor::insertRecord(QString tableName, QString values, QStringList colNames)
+{
+    bool b;
+    QString strQuery = "", strColNames = "";
+    QSqlQuery query;
+
+    for (int i = 0; i < colNames.size(); i++)
+        strColNames += colNames[i] + ", ";
+
+    strColNames = strColNames.left(strColNames.lastIndexOf(','));
+
+    strQuery = "INSERT INTO " + tableName + "(" + strColNames + ") "
+            "VALUES (" + values + ")";
+    qDebug() << strQuery;
+
+    b = query.exec(strQuery);
+    //qDebug() << query.at();
+    if (!b)
+        qDebug() << query.lastError().text();
+    else
+        qDebug() << "Data insertion is successfull!";
+
+
+
+}
+
 QSqlQuery DataProcessor::selectAll(QString tableName)
 {
     bool b;
     QSqlQuery query;
     QString strQuery = "SELECT * FROM " + tableName + ";";
-    qDebug() << strQuery;
+//    qDebug() << strQuery;
     b = query.exec(strQuery);
     if (!b)
         qDebug() << "Data is not selected";
@@ -127,6 +185,7 @@ QSqlQuery DataProcessor::selectAll(QString tableName)
 int DataProcessor::getColNum(QString tableName)
 {
     int colCount = 0;
+    QSqlDatabase mdb = QSqlDatabase::database();
     QSqlRecord rec = mdb.record(tableName);
     for ( int i=0; i<rec.count(); i++)
     {
@@ -150,6 +209,7 @@ int DataProcessor::getRowNum(QString tableName)
 QStringList DataProcessor::getColNames(QString tableName)
 {
     QStringList colNames;
+    QSqlDatabase mdb = QSqlDatabase::database();
     QSqlRecord rec = mdb.record(tableName);
     for ( int i=0; i<rec.count(); i++)
     {
@@ -162,6 +222,7 @@ QStringList DataProcessor::getColTypes(QString tableName)
 {
     QVariant variant;
     QStringList result;
+    QSqlDatabase mdb = QSqlDatabase::database();
     QSqlRecord rec = mdb.record(tableName);
     for (int i=0; i<rec.count(); i++ )
     result.append(variant.typeToName(rec.field(i).type()));
@@ -171,13 +232,15 @@ QStringList DataProcessor::getColTypes(QString tableName)
 QString DataProcessor::getValue(QString tableName, int recordNum, int colNum)
 {
     QSqlQuery query = selectAll(tableName);
+    QStringList colTypes = getColTypes(tableName);
     QString value = "";
     while(query.next())
     {
-        if (query.next() == recordNum)
+        if (query.at() == recordNum)
         {
             value = query.value(colNum).toString();
         }
+
     }
 
     return value;
@@ -186,24 +249,24 @@ QString DataProcessor::getValue(QString tableName, int recordNum, int colNum)
 QString DataProcessor::getValueParams(QStringList typeNames, QStringList paramVals)
 {
     QString tempstr = "", result = "";
-     for (int i=0, pos=0; i<typeNames.size(); i++)
+     for (int i=0; i<typeNames.size(); i++)
      {
-         if (typeNames[i] == "int")
+        if (typeNames[i] == "int")
              tempstr = "\%%1, ";
-         else
+        else
              tempstr = "\'\%%1\', ";
          tempstr = tempstr.arg(1);
          result += tempstr;
          result = result.arg(paramVals[i]);
 
-         if (typeNames.size() == i+1)
-         {
-             pos = result.lastIndexOf(QChar(','));
-             result = result.left(pos);
-         }
       }
+
+     int pos = result.lastIndexOf(QChar(','));
+     result = result.left(pos);
      return result;
 
 }
+
+
 
 

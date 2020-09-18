@@ -12,10 +12,13 @@ public:
     QString getCurrentTable();
     QString getValue(QString,int,int);
     QString getValueParams(QStringList, QStringList);
+    void setCurrentTable(QString tableName);
     void addTable(QString);
     void addColumn(QString, QString, QString);
     void addColumn(QString, QStringList, QStringList, QString);
     void deleteColumn(QString, QString);
+    void deleteTable(QString tableName);
+    void insertRecord(QString, QString, QStringList);
     int getColNum(QString);
     int getRowNum(QString);
     QStringList getColNames(QString);
@@ -26,8 +29,11 @@ public:
 
 private:
 
-    QSqlDatabase mdb;
-    QString currentTable;
+    //QSqlDatabase mdb;
+    QString currentTable = "";
+    QStringList tableNames;
 };
+
+
 
 #endif // DATAPROCESSOR_H
