@@ -98,7 +98,6 @@ void DataProcessor::addColumn(QString tableName, QStringList colNames, QStringLi
     for (int i=0; i<strQueryList.size();i++ )
     {
         b = query.exec(strQueryList[i]);
-        //qDebug() << strQueryList[i];
         if (!b)
             qDebug() << query.lastError().text();
         else
@@ -121,7 +120,6 @@ void DataProcessor::deleteColumn(QString tableName, QString strColNames)
     for (int i=0; i<strQueryList.size();i++ )
     {
         b = query.exec(strQueryList[i]);
-        //qDebug() << strQueryList[i];
         if (!b)
             qDebug() << "Error! query had not been added!";
         else
@@ -200,7 +198,6 @@ void DataProcessor::insertRecord(QString tableName, QString values, QStringList 
     qDebug() << strQuery;
 
     b = query.exec(strQuery);
-    //qDebug() << query.at();
     if (!b)
         qDebug() << query.lastError().text();
     else
@@ -236,7 +233,6 @@ QSqlQuery DataProcessor::selectAll(QString tableName)
     bool b;
     QSqlQuery query;
     QString strQuery = "SELECT * FROM " + tableName + ";";
-//    qDebug() << strQuery;
     b = query.exec(strQuery);
   /*  if (!b)
         qDebug() << query.lastError();
@@ -286,10 +282,8 @@ int DataProcessor::getColNum(QString tableName)
 int DataProcessor::getRowNum(QSqlQuery query)
 {
     int rowCount = 0;
-    //QSqlQuery query = selectAll(tableName);
     while (query.next())
     {
-        //qDebug() << query.value(0).toString();
         rowCount++;
     }
     return rowCount;
@@ -316,6 +310,11 @@ QStringList DataProcessor::getColTypes(QString tableName)
     for (int i=0; i<rec.count(); i++ )
     result.append(variant.typeToName(rec.field(i).type()));
     return result;
+}
+
+QStringList DataProcessor::getTableNames()
+{
+    return tableNames;
 }
 
 QString DataProcessor::getValue(QString tableName, int recordNum, int colNum)

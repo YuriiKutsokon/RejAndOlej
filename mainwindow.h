@@ -5,6 +5,7 @@
 
 #include <QMainWindow>
 #include <QKeyEvent>
+#include <QToolBar>
 #include "addtablewindow.h"
 #include "addcolumnwindow.h"
 #include "dataprocessor.h"
@@ -26,7 +27,6 @@ public:
     void updateQTableWidgetRow(QStringList colNames, QStringList colTypes);
 
 private slots:
-    void on_button_addTable_clicked();
 
     void on_button_addKolumn_clicked();
 
@@ -34,13 +34,19 @@ private slots:
 
     void on_button_addVehicle_clicked();
 
-    void on_button_deleteTable_clicked();
-
     void on_button_deleteVehicle_clicked();
 
     void on_button_sort_clicked();
 
     void on_getSelectConditions();
+
+    void on_actionDodaj_tabel_2_triggered();
+
+    void on_actionUsun_tabel_triggered();
+
+    void on_select_current_table();
+
+    void on_actionRefresh_triggered();
 
 private:
     bool eventFilter(QObject *obj, QEvent *evt) override;
@@ -49,7 +55,10 @@ private:
     Ui::MainWindow *ui;
     DataProcessor *dataProcessor;
     SelectWindow *sw;
+    QToolBar *createToolBar();
     QString currentTable;
     QStringList lastSelectConditions;
+    void addTablesToMainMenu(QStringList tableNames);
+
 };
 #endif // MAINWINDOW_H

@@ -9,10 +9,10 @@ MainWindow::MainWindow(QWidget *parent)
     dataProcessor = new DataProcessor();
     currentTable = dataProcessor->getCurrentTable();
     ui->label_tableName->setText(currentTable);
-    //qDebug() << currentTable;
     ui->main_Table->installEventFilter(this);
     QSqlQuery query = dataProcessor->selectAll(currentTable);
-    //qDebug() << query.lastQuery();
+    addTablesToMainMenu(dataProcessor->getTableNames());
+    addToolBar(Qt::TopToolBarArea, createToolBar());
     display(query, DEFAULT);
 }
 
@@ -28,7 +28,7 @@ void MainWindow::display(QSqlQuery query, int param)
     int colCount = dataProcessor->getColNum(currentTable);
     ui->main_Table->setColumnCount(colCount);
     ui->main_Table->setHorizontalHeaderLabels(colNames);
-    int i=0, row;
+    int i=0;
     switch (param)
     {
     case 0:
@@ -45,17 +45,11 @@ void MainWindow::display(QSqlQuery query, int param)
                 {
                     item = new QTableWidgetItem();
                     ui->main_Table->setItem(i, j, item);
-                    row = query.value("id").toInt();
-                    qDebug() << row;
                     item -> setText(dataProcessor->getValue(currentTable, query.value("id").toInt(), j));
                 }
                 else
-                {
-                    row = query.value("id").toInt();
-                    qDebug() << row;
                     item -> setText(dataProcessor->getValue(currentTable, query.value("id").toInt(), j));
 
-                }
             }
             i++;
         }
@@ -121,12 +115,6 @@ void MainWindow::display(QSqlQuery query, int param)
 
         break;
 
-        case 2:
-    {
-
-    }
-        break;
-
     }
 }
 
@@ -144,23 +132,18 @@ void MainWindow::insertQTableWidgetRow(QStringList colNames, QStringList colType
             ui->main_Table->setItem(ui->main_Table->currentRow(), i, item);
         }
 
-//           qDebug() << item->text() << "  " << i;
-
         if (item->text() != "")
         {
-            //qDebug() << "i'm in !isNull";
             insertValues.append(item->text());
         }
         else if (i == ui->main_Table->currentColumn())
         {
          insertValues.append(item->text());
-                        //qDebug() << "i'm in currentColumn!";
         }
         else
             insertValues.append("0");
     }
     strInsertValues = dataProcessor->getValueParams(colTypes, insertValues);
-    //qDebug() << colTypes << "\n" << insertValues;
     dataProcessor->insertRecord(currentTable, strInsertValues, colNames);
 
 }
@@ -186,18 +169,6 @@ void MainWindow::updateQTableWidgetRow(QStringList colNames, QStringList colType
 }
 
 
-void MainWindow::on_button_addTable_clicked()
-{
-     AddTableWindow atw;
-
-     if (atw.exec())
-         dataProcessor->addTable(atw.getNewTableName());
-     currentTable = dataProcessor->getCurrentTable();
-     ui->label_tableName->setText(currentTable);
-     QSqlQuery query = dataProcessor->selectAll(currentTable);
-    display(query, DEFAULT);
-}
-
 void MainWindow::on_button_addKolumn_clicked()
 {
     QString parameters, strColumns;
@@ -210,8 +181,6 @@ void MainWindow::on_button_addKolumn_clicked()
         parameters = acw.getUniqueStatus() + acw.getPrimaryKeyStatus();
         colNames.append(acw.getColName());
         colTypes.append(acw.getColType());
-  //      qDebug() << colNames;
-    //                qDebug() << parameters;
         if (parameters != "")
             dataProcessor->addColumn(currentTable, colNames, colTypes, parameters);
         else
@@ -252,19 +221,9 @@ void MainWindow::on_button_addVehicle_clicked()
     display(query ,ADDITIONAL_ROW);
 }
 
-void MainWindow::on_button_deleteTable_clicked()
-{
-    dataProcessor->deleteTable(currentTable);
-    currentTable = dataProcessor->getCurrentTable();
-    ui->label_tableName->setText(currentTable);
-    QSqlQuery query = dataProcessor->selectAll(currentTable);
-    display(query, DEFAULT);
-}
-
 void MainWindow::on_button_deleteVehicle_clicked()
 {
     QTableWidgetItem *item = ui->main_Table->item(ui->main_Table->currentRow(), 0);
-    //ui->main_Table->setItem(ui->main_Table->currentRow(), 0, item);
     dataProcessor->deleteRow(currentTable, item->text().toInt());
     QSqlQuery query = dataProcessor->selectAll(currentTable);
     display(query, DEFAULT);
@@ -283,7 +242,6 @@ void MainWindow::on_getSelectConditions()
     QSqlQuery query;
     QStringList conditionSplitter, names, values, signs;
     lastSelectConditions = sw->getSelectConditions();
-    //qDebug() << lastSelectConditions;
     for(int i=0; i<lastSelectConditions.size(); i++)
     {
          conditionSplitter = lastSelectConditions[i].split(" ");
@@ -307,7 +265,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *evt)
     QStringList colTypes = dataProcessor->getColTypes(currentTable);
     QStringList selectColNames, selectColValues, comparitionSigns;
     QSqlQuery query;
-    //int i = 0, j = 0;
 
     if (evt->type() == QEvent::KeyRelease)
     {
@@ -339,12 +296,10 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *evt)
              else if (ke->key() == Qt::Key_Left || ke->key() == Qt::Key_Right || ke->key() == Qt::Key_Up || ke->key() == Qt::Key_Down)
          {    QSqlQuery query = dataProcessor->selectAll(currentTable);
               display(query, DEFAULT);
-             //qDebug() << "display was pressed!";
              returnStatement = true;
          }
          else
          {
-             //qDebug() << ke->key() << " was pressed!";
              returnStatement = false;
          }
 
@@ -352,7 +307,69 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *evt)
     return returnStatement;
 }
 
+QToolBar *MainWindow::createToolBar()
+{
+    QToolBar *tb = new QToolBar("Main Toolbar");
+
+    tb->addAction(ui->actionRefresh);
+
+    return tb;
+}
+
+void MainWindow::addTablesToMainMenu(QStringList tableNames)
+{
+    QMenu *selectTables = new QMenu("&Wybierz tabelę");
+    ui->menuTabel->insertMenu(ui->actionUsun_tabel,selectTables);
+
+    for (int i = 0; i < tableNames.size(); i++)
+    {
+        QAction *selectTableAction = selectTables->addAction("&" + tableNames[i], this, SLOT(on_select_current_table()));
+    }
+}
 
 
+void MainWindow::on_actionDodaj_tabel_2_triggered()
+{
+    AddTableWindow atw;
+
+    if (atw.exec())
+        dataProcessor->addTable(atw.getNewTableName());
+    currentTable = dataProcessor->getCurrentTable();
+    ui->label_tableName->setText(currentTable);
+    QSqlQuery query = dataProcessor->selectAll(currentTable);
+   display(query, DEFAULT);
+
+}
+
+void MainWindow::on_actionUsun_tabel_triggered()
+{
+    dataProcessor->deleteTable(currentTable);
+    currentTable = dataProcessor->getCurrentTable();
+    ui->label_tableName->setText(currentTable);
+    QSqlQuery query = dataProcessor->selectAll(currentTable);
+    display(query, DEFAULT);
+
+}
+
+void MainWindow::on_select_current_table()
+{
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (action)
+    {
+        QString str = action->text();
+        str.remove(0,1);
+        dataProcessor->setCurrentTable(str);
+        currentTable = str;
+        QSqlQuery query = dataProcessor->selectAll(currentTable);
+        ui->label_tableName->setText(currentTable);
+        display(query, DEFAULT);
+    }
+
+}
 
 
+void MainWindow::on_actionRefresh_triggered()
+{
+    QSqlQuery query = dataProcessor->selectAll(currentTable);
+    display(query, DEFAULT);
+}

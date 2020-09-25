@@ -20,15 +20,15 @@
       <x>0</x>
       <y>40</y>
       <width>1371</width>
-      <height>641</height>
+      <height>601</height>
      </rect>
     </property>
    </widget>
    <widget class="QPushButton" name="button_deleteVehicle">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>690</y>
+      <x>1</x>
+      <y>650</y>
       <width>151</width>
       <height>25</height>
      </rect>
@@ -40,8 +40,8 @@
    <widget class="QPushButton" name="button_addVehicle">
     <property name="geometry">
      <rect>
-      <x>160</x>
-      <y>690</y>
+      <x>161</x>
+      <y>650</y>
       <width>151</width>
       <height>25</height>
      </rect>
@@ -53,8 +53,8 @@
    <widget class="QPushButton" name="button_addKolumn">
     <property name="geometry">
      <rect>
-      <x>320</x>
-      <y>690</y>
+      <x>321</x>
+      <y>650</y>
       <width>151</width>
       <height>25</height>
      </rect>
@@ -66,8 +66,8 @@
    <widget class="QPushButton" name="button_deleteColumn">
     <property name="geometry">
      <rect>
-      <x>480</x>
-      <y>690</y>
+      <x>481</x>
+      <y>650</y>
       <width>151</width>
       <height>25</height>
      </rect>
@@ -79,8 +79,8 @@
    <widget class="QPushButton" name="button_sort">
     <property name="geometry">
      <rect>
-      <x>640</x>
-      <y>690</y>
+      <x>641</x>
+      <y>650</y>
       <width>151</width>
       <height>25</height>
      </rect>
@@ -92,8 +92,8 @@
    <widget class="QPushButton" name="button_save">
     <property name="geometry">
      <rect>
-      <x>1199</x>
-      <y>690</y>
+      <x>1200</x>
+      <y>650</y>
       <width>151</width>
       <height>25</height>
      </rect>
@@ -102,38 +102,12 @@
      <string>Zapisz</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="button_addTable">
-    <property name="geometry">
-     <rect>
-      <x>1199</x>
-      <y>10</y>
-      <width>151</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Dodaj tabelę</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="button_deleteTable">
-    <property name="geometry">
-     <rect>
-      <x>1049</x>
-      <y>10</y>
-      <width>141</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Usuń tabelę</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_tableName">
     <property name="geometry">
      <rect>
-      <x>880</x>
+      <x>1066</x>
       <y>10</y>
-      <width>151</width>
+      <width>201</width>
       <height>20</height>
      </rect>
     </property>
@@ -144,7 +118,7 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>774</x>
+      <x>960</x>
       <y>10</y>
       <width>101</width>
       <height>20</height>
@@ -164,9 +138,77 @@
      <height>25</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menufile">
+    <property name="title">
+     <string>File</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menudfdff">
+    <property name="title">
+     <string>Baza Danych</string>
+    </property>
+    <widget class="QMenu" name="menuTabel">
+     <property name="title">
+      <string>Tabele</string>
+     </property>
+     <addaction name="actionDodaj_tabel_2"/>
+     <addaction name="actionUsun_tabel"/>
+    </widget>
+    <addaction name="menuTabel"/>
+   </widget>
+   <widget class="QMenu" name="menuOkno">
+    <property name="title">
+     <string>Okno</string>
+    </property>
+    <addaction name="actionRefresh"/>
+   </widget>
+   <addaction name="menufile"/>
+   <addaction name="menudfdff"/>
+   <addaction name="menuOkno"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionZmie_tabel">
+   <property name="text">
+    <string>Wybierz tabelę</string>
+   </property>
+  </action>
+  <action name="actionDodaj_tabel">
+   <property name="text">
+    <string>Dodaj tabelę</string>
+   </property>
+  </action>
+  <action name="actionUsu_tabel">
+   <property name="text">
+    <string>Usuń tabelę</string>
+   </property>
+  </action>
+  <action name="actionDodaj_tabel_2">
+   <property name="text">
+    <string>Dodaj tabelę</string>
+   </property>
+  </action>
+  <action name="actionUsun_tabel">
+   <property name="text">
+    <string>Usuń tabelę</string>
+   </property>
+  </action>
+  <action name="actionWybierz_tabel">
+   <property name="text">
+    <string>Wybierz tabelę</string>
+   </property>
+  </action>
+  <action name="actionRefresh">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/res/img/Refresh.png</normaloff>:/res/img/Refresh.png</iconset>
+   </property>
+   <property name="text">
+    <string>Odśwież</string>
+   </property>
+  </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
  <connections/>
 </ui>

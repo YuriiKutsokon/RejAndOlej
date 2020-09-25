@@ -26,6 +26,7 @@ public:
     int getRowNum(QSqlQuery query);
     QStringList getColNames(QString);
     QStringList getColTypes(QString);
+    QStringList getTableNames();
 
 
 
