@@ -21,18 +21,21 @@ SOURCES += \
     addtablewindow.cpp \
     dataprocessor.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    selectwindow.cpp
 
 HEADERS += \
     addcolumnwindow.h \
     addtablewindow.h \
     dataprocessor.h \
-    mainwindow.h
+    mainwindow.h \
+    selectwindow.h
 
 FORMS += \
     addcolumnwindow.ui \
     addtablewindow.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    selectwindow.ui
 
 TRANSLATIONS += \
     RejAndOlej_pl_PL.ts
