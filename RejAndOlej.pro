@@ -1,5 +1,6 @@
 QT       += core gui
 QT       += sql
+QT       += printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -22,6 +23,7 @@ SOURCES += \
     dataprocessor.cpp \
     main.cpp \
     mainwindow.cpp \
+    myprinter.cpp \
     selectwindow.cpp
 
 HEADERS += \
@@ -29,6 +31,7 @@ HEADERS += \
     addtablewindow.h \
     dataprocessor.h \
     mainwindow.h \
+    myprinter.h \
     selectwindow.h
 
 FORMS += \

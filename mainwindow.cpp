@@ -253,6 +253,7 @@ void MainWindow::on_getSelectConditions()
 
     qDebug() << names << signs << values;
     query = dataProcessor->selectExactRecords(currentTable, names, values, signs);
+    lastSelectQuery = query.lastQuery();
     display(query, DEFAULT);
 
 }
@@ -290,11 +291,13 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *evt)
              else
                 insertQTableWidgetRow(colNames, colTypes);
              QSqlQuery query = dataProcessor->selectAll(currentTable);
+             ui->main_Table->update();
              display(query, DEFAULT);
              returnStatement = true;
          }
              else if (ke->key() == Qt::Key_Left || ke->key() == Qt::Key_Right || ke->key() == Qt::Key_Up || ke->key() == Qt::Key_Down)
-         {    QSqlQuery query = dataProcessor->selectAll(currentTable);
+         {
+              QSqlQuery query = dataProcessor->selectAll(currentTable);
               display(query, DEFAULT);
              returnStatement = true;
          }
@@ -372,4 +375,45 @@ void MainWindow::on_actionRefresh_triggered()
 {
     QSqlQuery query = dataProcessor->selectAll(currentTable);
     display(query, DEFAULT);
+}
+
+void MainWindow::on_actionDrukuj_triggered()
+{
+    #ifndef QT_NO_PRINTER
+    QPrinter printer;
+    printer.setOrientation(QPrinter::Landscape);
+    printer.setPaperSize(QPrinter::A4);
+    printer.setPageMargins(10, 10, 10, 10, QPrinter::Millimeter);
+    QPrintPreviewDialog *printDlg = new QPrintPreviewDialog(&printer, this, Qt::Window);
+
+    connect(printDlg, &QPrintPreviewDialog::paintRequested, this, &MainWindow::on_print_prewiew_needs);
+
+    printDlg->showMaximized();
+    if (printDlg->exec())
+    {
+
+    }
+    #endif
+}
+
+void MainWindow::on_print_prewiew_needs(QPrinter *poPrinter_p)
+{
+       QRect qPageRect = poPrinter_p->pageRect();
+       QPainter qPainter(poPrinter_p);
+       MyPrinter myPrinter;
+       QSqlQuery query;
+
+       if (lastSelectQuery != "")
+           query.exec(lastSelectQuery);
+       else
+           query = dataProcessor->selectAll(currentTable);
+
+       QStringList printContents = dataProcessor->getQuerySelectResultRecords(query);
+       QTextDocument *textDoc = myPrinter.createHtmlPrintDocument(poPrinter_p, printContents);
+
+       textDoc->drawContents(&qPainter, QRect(0, 0, qPageRect.width(), qPageRect.height()));
+
+       myPrinter.printPageHeaderFooter(&qPainter, qPageRect, 1);
+
+
 }

@@ -228,6 +228,8 @@ void DataProcessor::updateRecord(QString tableName, QStringList colNames, QStrin
 
 }
 
+
+
 QSqlQuery DataProcessor::selectAll(QString tableName)
 {
     bool b;
@@ -251,10 +253,10 @@ QSqlQuery DataProcessor::selectExactRecords(QString tableName, QStringList colNa
 
     for (int i = 0; i < values.size(); i++)
     {
-        strSelect += colNames[i] + compSigns[i] + values[i] + ", ";
+        strSelect += colNames[i] + compSigns[i] + values[i] + " AND ";
     }
 
-    strSelect = strSelect.left(strSelect.lastIndexOf(','));
+    strSelect = strSelect.left(strSelect.lastIndexOf('A'));
 
     strQuery = "SELECT * FROM " + tableName + " WHERE " + strSelect;
     b = query.exec(strQuery);
@@ -264,6 +266,22 @@ QSqlQuery DataProcessor::selectExactRecords(QString tableName, QStringList colNa
             qDebug() << "Data is selected";
 
     return query;
+}
+
+int DataProcessor::getColNum(QSqlQuery query)
+{
+    int colCount = 0;
+    QSqlDatabase mdb = QSqlDatabase::database();
+    QSqlRecord rec = query.record();
+    if (query.next())
+    {
+        for ( int i=0; i<rec.count(); i++)
+        {
+            colCount++;
+        }
+    }
+
+    return colCount;
 }
 
 int DataProcessor::getColNum(QString tableName)
@@ -301,6 +319,20 @@ QStringList DataProcessor::getColNames(QString tableName)
     return colNames;
 }
 
+QStringList DataProcessor::getColNames(QSqlQuery query)
+{
+    query.exec(query.lastQuery());
+    QSqlRecord rec = query.record();
+    QStringList colnames;
+
+    for (int i = 0; i < rec.count(); i++)
+    {
+        colnames.append(rec.fieldName(i));
+    }
+
+    return colnames;
+}
+
 QStringList DataProcessor::getColTypes(QString tableName)
 {
     QVariant variant;
@@ -317,6 +349,36 @@ QStringList DataProcessor::getTableNames()
     return tableNames;
 }
 
+QStringList DataProcessor::getQuerySelectResultRecords(QSqlQuery query)
+{
+    QStringList result;
+    QString tempStr = "";
+    query.exec(query.lastQuery());
+    QStringList colNames = getColNames(query);
+    int colNum = colNames.size();
+    query.exec(query.lastQuery());
+    while (query.next())
+    {
+        for (int i = 0; i < colNum; i++)
+        {
+            tempStr += query.value(i).toString() + " ";
+        }
+        tempStr = tempStr.left(tempStr.lastIndexOf(" "));
+        result.append(tempStr);
+        tempStr = "";
+    }
+
+    tempStr = "";
+    for (int i = 0; i < colNum; i++ )
+    {
+        tempStr += colNames[i] + " ";
+    }
+    tempStr = tempStr.left(tempStr.lastIndexOf(" "));
+    result.prepend(tempStr);
+
+    return result;
+}
+
 QString DataProcessor::getValue(QString tableName, int recordNum, int colNum)
 {
     QSqlQuery query = selectAll(tableName);
@@ -327,7 +389,6 @@ QString DataProcessor::getValue(QString tableName, int recordNum, int colNum)
         {
             value = query.value(colNum).toString();
         }
-
     }
 
     return value;

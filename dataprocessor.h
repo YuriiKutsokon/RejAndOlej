@@ -22,12 +22,14 @@ public:
     void deleteRow(QString tableName, int id);
     void insertRecord(QString tableName, QString values, QStringList colNames);
     void updateRecord(QString tablename, QStringList colNames, QStringList values, int recordId);
-    int getColNum(QString);
+    int getColNum(QSqlQuery query);
+    int getColNum(QString tableName);
     int getRowNum(QSqlQuery query);
-    QStringList getColNames(QString);
-    QStringList getColTypes(QString);
+    QStringList getColNames(QString tableName);
+    QStringList getColNames(QSqlQuery query);
+    QStringList getColTypes(QString tableName);
     QStringList getTableNames();
-
+    QStringList getQuerySelectResultRecords(QSqlQuery query);
 
 
 

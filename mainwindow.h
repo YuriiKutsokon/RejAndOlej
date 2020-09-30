@@ -6,10 +6,15 @@
 #include <QMainWindow>
 #include <QKeyEvent>
 #include <QToolBar>
+#include <QPainter>
+#include <QPrinter>
+#include <QPrintDialog>
+#include <QPrintPreviewDialog>
 #include "addtablewindow.h"
 #include "addcolumnwindow.h"
 #include "dataprocessor.h"
 #include "selectwindow.h"
+#include "myprinter.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -48,6 +53,10 @@ private slots:
 
     void on_actionRefresh_triggered();
 
+    void on_actionDrukuj_triggered();
+
+
+
 private:
     bool eventFilter(QObject *obj, QEvent *evt) override;
   //  int DEFAULT = 0,
@@ -55,10 +64,13 @@ private:
     Ui::MainWindow *ui;
     DataProcessor *dataProcessor;
     SelectWindow *sw;
+    //QPrinter printer;
     QToolBar *createToolBar();
     QString currentTable;
+    QString lastSelectQuery = "";
     QStringList lastSelectConditions;
     void addTablesToMainMenu(QStringList tableNames);
+    void on_print_prewiew_needs(QPrinter *);
 
 };
 #endif // MAINWINDOW_H
