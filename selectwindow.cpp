@@ -28,6 +28,20 @@ QStringList SelectWindow::getSelectConditions()
     return selectConditions;
 }
 
+QStringList SelectWindow::getShowConditions()
+{
+    QStringList result;
+    for (int i = 0; i < checkBoxes.size(); i++)
+    {
+        if(qobject_cast<QCheckBox*>(checkBoxes[i])->isChecked())
+            result.append("true");
+        else
+            result.append("false");
+    }
+
+    return result;
+}
+
 void SelectWindow::init()
 {
     QStringList colNames = dataProcessor->getColNames(currentTable);
@@ -36,6 +50,8 @@ void SelectWindow::init()
     items.append("=");
     items.append(">");
     items.append("<");
+    items.append(">=");
+    items.append("<=");
     int dy = 0;
     for (int i = 0; i < colNames.size(); i++)
     {
@@ -55,6 +71,14 @@ void SelectWindow::init()
         lineEdit->setGeometry(550,70+dy,151,24);
         lineEdit->setVisible(true);
         lineEdits.append(lineEdit);
+
+        QCheckBox *checkBox = new QCheckBox(this);
+        checkBox->setGeometry(740, 70+dy,30,24);
+        checkBox->setText("");
+        checkBox->setChecked(true);
+        checkBox->setVisible(true);
+        checkBoxes.append(checkBox);
+
         dy += 30;
 
     }

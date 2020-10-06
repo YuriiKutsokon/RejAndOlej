@@ -3,6 +3,7 @@
 #include "dataprocessor.h"
 #include <QDialog>
 #include <QLineEdit>
+#include <QCheckBox>
 #include <QKeyEvent>
 
 namespace Ui {
@@ -19,6 +20,7 @@ public:
 
     QPushButton *getOkButton();
     QStringList getSelectConditions();
+    QStringList getShowConditions();
 
 
 private slots:
@@ -33,6 +35,7 @@ private:
     QWidgetList labels;
     QWidgetList comboBoxes;
     QWidgetList lineEdits;
+    QWidgetList checkBoxes;
 
     void init();
     void insertToTextEditWidget(QStringList conditions);

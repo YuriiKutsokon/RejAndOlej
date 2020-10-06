@@ -24,8 +24,8 @@ MainWindow::~MainWindow()
 void MainWindow::display(QSqlQuery query, int param)
 {
     qDebug() << query.lastQuery();
-    QStringList colNames = dataProcessor->getColNames(currentTable);
-    int colCount = dataProcessor->getColNum(currentTable);
+    QStringList colNames = dataProcessor->getColNames(query);
+    int colCount = dataProcessor->getColNum(query);
     ui->main_Table->setColumnCount(colCount);
     ui->main_Table->setHorizontalHeaderLabels(colNames);
     int i=0;
@@ -45,13 +45,14 @@ void MainWindow::display(QSqlQuery query, int param)
                 {
                     item = new QTableWidgetItem();
                     ui->main_Table->setItem(i, j, item);
-                    item -> setText(dataProcessor->getValue(currentTable, query.value("id").toInt(), j));
+                    item -> setText(dataProcessor->getValue(query.lastQuery(), query.at(), j));
                 }
                 else
-                    item -> setText(dataProcessor->getValue(currentTable, query.value("id").toInt(), j));
+                    item -> setText(dataProcessor->getValue(query.lastQuery(), query.at(), j));
 
             }
             i++;
+
         }
         ui -> retranslateUi(this);
     }
@@ -252,7 +253,7 @@ void MainWindow::on_getSelectConditions()
     }
 
     qDebug() << names << signs << values;
-    query = dataProcessor->selectExactRecords(currentTable, names, values, signs);
+    query = dataProcessor->selectExact(currentTable, names, values, signs, sw->getShowConditions());
     lastSelectQuery = query.lastQuery();
     display(query, DEFAULT);
 
@@ -264,7 +265,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *evt)
     bool returnStatement = false;
     QStringList colNames = dataProcessor->getColNames(currentTable);
     QStringList colTypes = dataProcessor->getColTypes(currentTable);
-    QStringList selectColNames, selectColValues, comparitionSigns;
+    QStringList selectColNames, selectColValues, comparitionSigns, colsToShow;
     QSqlQuery query;
 
     if (evt->type() == QEvent::KeyRelease)
@@ -282,7 +283,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *evt)
              selectColNames.append("id");
              selectColValues.append(item->text());
              comparitionSigns.append("=");
-             query = dataProcessor->selectExactRecords(currentTable, selectColNames, selectColValues, comparitionSigns);
+             query = dataProcessor->selectExact(currentTable, selectColNames, selectColValues, comparitionSigns, colsToShow);
 
              if (query.next())
              {

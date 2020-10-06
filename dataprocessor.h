@@ -9,9 +9,10 @@ public:
     DataProcessor();
     DataProcessor(QString);
     QSqlQuery selectAll(QString tableName);
-    QSqlQuery selectExactRecords(QString tableName, QStringList colNames, QStringList values, QStringList compSigns);
+    QSqlQuery selectExact(QString tableName, QStringList colNames, QStringList values, QStringList compSigns, QStringList colsToShow);
     QString getCurrentTable();
     QString getValue(QString tableName, int recordNum, int colNum);
+    QString getValue(QSqlQuery query, int recordNum, int colNum);
     QString getValueParams(QStringList, QStringList);
     void setCurrentTable(QString tableName);
     void addTable(QString);

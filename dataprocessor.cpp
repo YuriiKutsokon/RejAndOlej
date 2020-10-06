@@ -245,11 +245,13 @@ QSqlQuery DataProcessor::selectAll(QString tableName)
 
 }
 
-QSqlQuery DataProcessor::selectExactRecords(QString tableName, QStringList colNames, QStringList values, QStringList compSigns)
+QSqlQuery DataProcessor::selectExact(QString tableName, QStringList colNames, QStringList values, QStringList compSigns, QStringList colsToShowConditions)
 {
     bool b;
+    QSqlDatabase mdb = QSqlDatabase::database();
     QSqlQuery query;
-    QString strQuery, strSelect;
+    QSqlRecord rec = mdb.record(tableName);
+    QString strQuery, strSelect, strColsToShow;
 
     for (int i = 0; i < values.size(); i++)
     {
@@ -257,19 +259,38 @@ QSqlQuery DataProcessor::selectExactRecords(QString tableName, QStringList colNa
     }
 
     strSelect = strSelect.left(strSelect.lastIndexOf('A'));
-
-    strQuery = "SELECT * FROM " + tableName + " WHERE " + strSelect;
-    b = query.exec(strQuery);
-    if (!b)
+    if (colsToShowConditions.isEmpty())
+    {
+        strQuery = "SELECT * FROM " + tableName + " WHERE " + strSelect;
+        b = query.exec(strQuery);
+        if (!b)
             qDebug() << query.lastError();
         else
             qDebug() << "Data is selected";
+    }
+    else
+    {
+        for (int i = 0; i < colsToShowConditions.size(); i++)
+        {
+            if (colsToShowConditions[i] == "true")
+            strColsToShow += rec.fieldName(i) + ", ";
+        }
+        strColsToShow = strColsToShow.left(strColsToShow.lastIndexOf(','));
+
+        strQuery = "SELECT " + strColsToShow + " FROM " + tableName + " WHERE " + strSelect;
+        b = query.exec(strQuery);
+        if (!b)
+            qDebug() << query.lastError();
+        else
+            qDebug() << "Data is selected";
+    }
 
     return query;
 }
 
 int DataProcessor::getColNum(QSqlQuery query)
 {
+    query.exec(query.lastQuery());
     int colCount = 0;
     QSqlDatabase mdb = QSqlDatabase::database();
     QSqlRecord rec = query.record();
@@ -299,6 +320,7 @@ int DataProcessor::getColNum(QString tableName)
 
 int DataProcessor::getRowNum(QSqlQuery query)
 {
+    query.exec(query.lastQuery());
     int rowCount = 0;
     while (query.next())
     {
@@ -379,9 +401,31 @@ QStringList DataProcessor::getQuerySelectResultRecords(QSqlQuery query)
     return result;
 }
 
-QString DataProcessor::getValue(QString tableName, int recordNum, int colNum)
+QString DataProcessor::getValue(QString strQuery, int recordNum, int colNum)
 {
-    QSqlQuery query = selectAll(tableName);
+    QSqlQuery query;
+    bool b;
+    b = query.exec(strQuery);
+  /*  if (!b)
+        qDebug() << query.lastError();
+    else
+        qDebug() << "getValue: selection successfull";
+    */
+QString value = "";
+    while(query.next())
+    {
+        if (query.at() == recordNum)
+        {
+            value = query.value(colNum).toString();
+        }
+    }
+
+    return value;
+}
+
+QString DataProcessor::getValue(QSqlQuery query, int recordNum, int colNum)
+{
+    query.exec(query.lastQuery());
     QString value = "";
     while(query.next())
     {
