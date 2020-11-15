@@ -1,4 +1,5 @@
-id INTEGER PKmarka TEXT
+id INTEGER PK
+marka TEXT
 model TEXT
 kraj_pochodzenia TEXT
 km_do_przegladu_serwisowego INTEGER
