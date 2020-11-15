@@ -340,23 +340,29 @@ void MainWindow::on_button_addKolumn_clicked()
         QString param = "";
 
         if (acw.getUniqueStatus() != "" && acw.getPrimaryKeyStatus() != "")
+        {
             param = acw.getUniqueStatus() + " " + acw.getPrimaryKeyStatus();
-        else
+            parameters.append(param);
+        }
+        else if (acw.getUniqueStatus() != "" || acw.getPrimaryKeyStatus() != "")
         {
             if (acw.getUniqueStatus() != "")
                 param = acw.getUniqueStatus();
 
             if (acw.getPrimaryKeyStatus() != "")
                 param = acw.getPrimaryKeyStatus();
+            parameters.append(param);
         }
 
-        parameters.append(param);
 
-        colNames.append(acw.getColName());
-        colTypes.append(acw.getColType());
-
-
-        dataProcessor->addColumn(currentTable, colNames, colTypes, parameters);
+        if (param != "")
+        {
+            colNames.append(acw.getColName());
+            colTypes.append(acw.getColType());
+            dataProcessor->addColumn(currentTable, colNames, colTypes, parameters);
+        }
+        else
+            dataProcessor->addColumn(currentTable, acw.getColName(), acw.getColType());
     }
 
 

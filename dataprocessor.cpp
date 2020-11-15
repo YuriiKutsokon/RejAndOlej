@@ -191,7 +191,7 @@ void DataProcessor::addColumn(QString tableName, QString newColName, QString new
     else
         qDebug() << "column " << newColName << " had been successfully added!" ;
 
-    saveToFileValues = newColName + " " + newColType;
+    saveToFileValues = "\n" + newColName + " " + newColType;
 
 
     tfp.writeToFile(saveToFilePath, saveToFileValues, WriteToFileParams::To_End_Of_File);
