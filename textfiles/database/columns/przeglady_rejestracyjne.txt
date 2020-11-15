@@ -1,4 +1,5 @@
-id INTEGER PKnumer_taborowy INTEGER
+id INTEGER PK
+umer_taborowy INTEGER
 numer_rejestracyjny TEXT
 licznik_aktualny INTEGER
 km_do_nastepnego_przegladu INTEGER
