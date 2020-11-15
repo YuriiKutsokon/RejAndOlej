@@ -21,18 +21,22 @@ SOURCES += \
     addcolumnwindow.cpp \
     addtablewindow.cpp \
     dataprocessor.cpp \
+    ioprocessor.cpp \
     main.cpp \
     mainwindow.cpp \
     myprinter.cpp \
-    selectwindow.cpp
+    selectwindow.cpp \
+    textfileprocessor.cpp
 
 HEADERS += \
     addcolumnwindow.h \
     addtablewindow.h \
     dataprocessor.h \
+    ioprocessor.h \
     mainwindow.h \
     myprinter.h \
-    selectwindow.h
+    selectwindow.h \
+    textfileprocessor.h
 
 FORMS += \
     addcolumnwindow.ui \

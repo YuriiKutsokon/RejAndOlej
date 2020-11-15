@@ -1,0 +1,9 @@
+id INTEGER PK
+numer_taborowy INTEGER
+numer_rejestracyjny TEXT
+marka TEXT
+model TEXT
+rocznik INTEGER
+data_ostatniego_przegladu DATE
+licznik_aktualny INTEGER
+autobusy_id_fk INTEGER

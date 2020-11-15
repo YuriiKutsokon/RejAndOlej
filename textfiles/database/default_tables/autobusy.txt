@@ -1,0 +1,6 @@
+id INTEGER PK
+marka TEXT
+model TEXT
+kraj_pochodzenia TEXT
+km_do_przegladu_serwisowego INTEGER
+dni_do_przegladu_olejowego INTEGER

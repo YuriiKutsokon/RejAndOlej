@@ -1,17 +1,18 @@
 #include "selectwindow.h"
 #include "ui_selectwindow.h"
 
-SelectWindow::SelectWindow(QWidget *parent) :
+SelectWindow::SelectWindow(QString tableName, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SelectWindow)
 {
     ui->setupUi(this);
-    dataProcessor = new DataProcessor();
+    dataProcessor = new DataProcessor(tableName);
     currentTable = dataProcessor->getCurrentTable();
+    this->setWindowTitle(currentTable);
     init();
     installEventFilters(lineEdits);
-
 }
+
 
 SelectWindow::~SelectWindow()
 {
@@ -114,7 +115,7 @@ bool SelectWindow::eventFilter(QObject *obj, QEvent *evt)
                if (qobject_cast<QLineEdit*>(lineEdits[i])->isModified())
                {
 
-                    if (colTypes[i] == "QString")
+                    if (!colTypes[i].contains("INTEGER"))
                         strCondition = qobject_cast<QLabel*>(labels[i])->text() +" " + qobject_cast<QComboBox*>(comboBoxes[i])->currentText()
                            + " "  + "'" + qobject_cast<QLineEdit*>(lineEdits[i])->text() + "'";
                     else

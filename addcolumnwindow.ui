@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>577</width>
-    <height>302</height>
+    <width>571</width>
+    <height>436</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>200</x>
-     <y>250</y>
+     <y>390</y>
      <width>171</width>
      <height>32</height>
     </rect>
@@ -81,14 +81,22 @@
    </item>
    <item>
     <property name="text">
+     <string>DATE</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
      <string>TEXT</string>
     </property>
    </item>
   </widget>
   <widget class="QCheckBox" name="checkBox_unique">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
-     <x>130</x>
+     <x>110</x>
      <y>150</y>
      <width>111</width>
      <height>22</height>
@@ -99,6 +107,9 @@
    </property>
   </widget>
   <widget class="QCheckBox" name="checkBox_primaryKey">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>340</x>
@@ -110,6 +121,74 @@
    <property name="text">
     <string>Klucz główny</string>
    </property>
+  </widget>
+  <widget class="QCheckBox" name="checkBox_ForeginKey">
+   <property name="geometry">
+    <rect>
+     <x>110</x>
+     <y>200</y>
+     <width>151</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Pole z innej tabeli</string>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>230</y>
+     <width>451</width>
+     <height>121</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string/>
+   </property>
+   <widget class="QComboBox" name="comboBox_FK_Column">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>50</y>
+      <width>241</width>
+      <height>24</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBox_FK_Table">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>241</width>
+      <height>24</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBox_autofill">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>20</y>
+      <width>281</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>uzupełniać automatycznie</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>

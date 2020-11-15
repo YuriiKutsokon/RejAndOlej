@@ -1,5 +1,3 @@
-#define DEFAULT 0
-#define ADDITIONAL_ROW 1
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
@@ -10,15 +8,23 @@
 #include <QPrinter>
 #include <QPrintDialog>
 #include <QPrintPreviewDialog>
+#include <QTableWidget>
 #include "addtablewindow.h"
 #include "addcolumnwindow.h"
 #include "dataprocessor.h"
 #include "selectwindow.h"
 #include "myprinter.h"
+#include "ioprocessor.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
+
+enum DisplayParameters
+{
+    DEFAULT,
+    ADDITIONAL_ROW
+};
 
 class MainWindow : public QMainWindow
 {
@@ -26,10 +32,18 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
+
     ~MainWindow();
+
     void display(QSqlQuery, int);
+
     void insertQTableWidgetRow(QStringList colNames, QStringList colTypes);
+
     void updateQTableWidgetRow(QStringList colNames, QStringList colTypes);
+
+    void initColumnsWidth(QStringList colNames);
+
+    QComboBox *initComboBox(QString tableName, QString colName, QString currentText = nullptr);
 
 private slots:
 
@@ -57,14 +71,13 @@ private slots:
 
 
 
+    void on_pushButton_clicked();
+
 private:
     bool eventFilter(QObject *obj, QEvent *evt) override;
-  //  int DEFAULT = 0,
-   //     ADDITIONAL_ROW = 1;
     Ui::MainWindow *ui;
     DataProcessor *dataProcessor;
     SelectWindow *sw;
-    //QPrinter printer;
     QToolBar *createToolBar();
     QString currentTable;
     QString lastSelectQuery = "";

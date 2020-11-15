@@ -1,0 +1,8 @@
+id INTEGER PK
+numer_taborowy INTEGER
+numer_rejestracyjny TEXT
+licznik_aktualny INTEGER
+km_do_nastepnego_przegladu INTEGER
+OT_1 TEXT
+licznik_1 INTEGER
+flota_id_fk INTEGER

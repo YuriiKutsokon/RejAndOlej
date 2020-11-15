@@ -15,7 +15,7 @@ class SelectWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit SelectWindow(QWidget *parent = nullptr);
+    explicit SelectWindow(QString tableName, QWidget *parent = nullptr);
     ~SelectWindow();
 
     QPushButton *getOkButton();
