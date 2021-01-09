@@ -12,6 +12,7 @@
 #include <QFileInfo>
 #include <QFileInfoList>
 #include "textfileprocessor.h"
+#include "ioprocessor.h"
 
 
 
@@ -31,13 +32,21 @@ public:
     QString getValue(QString tableName, int recordNum, QString colName);
     QString getValue(QSqlQuery query, int recordNum, int colNum);
 
+    QString getType(QString tableName, QString colName);
+
     QString getValueParams(QStringList typeNames, QStringList paramVals);
 
     QString getTablePath(QString tableName);
 
-    QString getParentColumnName(QString tableName, QString colName);
+    QString getFKColumnName(QString tableName, QString colName);
 
     QString getDependenciesPath();
+
+    QString findDependency(QString tableName, QString colName);
+
+    QString attachStringList(QStringList stringList, QString separator);
+
+    void executeQuery(QString query);
 
     void setCurrentTable(QString tableName);
 
@@ -66,6 +75,8 @@ public:
 
     int getRowNum(QSqlQuery query);
 
+    int getServicesCount(QString tableName);
+
     QStringList getColNames(QString tableName);
     QStringList getColNames(QSqlQuery query);
 
@@ -76,6 +87,8 @@ public:
     QStringList getTableNames();
 
     QStringList getQuerySelectResultRecords(QSqlQuery query);
+
+    QStringList getDependenies(QString tableName = nullptr);
 
     bool hasDependency(QString TableName,QString colName);
 

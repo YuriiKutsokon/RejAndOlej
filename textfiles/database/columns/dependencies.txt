@@ -1,5 +1,6 @@
 flota.marka.FK.autobusy.marka
 flota.model.FK.autobusy.model
-przeglady_rejestracyjne.numer_taborowy.FKauto.flota.numer_taborowy
-przeglady_rejestracyjne.numer_rejestracyjny.FKauto.flota.numer_rejestracyjny
-przeglady_rejestracyjne.licznik_aktualny.FKauto.flota.licznik_aktualny
+przeglady_rejestracyjne_auto.id.FKauto.flota.id
+przeglady_rejestracyjne_auto.numer_taborowy.FKauto.flota.numer_taborowy
+przeglady_rejestracyjne_auto.numer_rejestracyjny.FKauto.flota.numer_rejestracyjny
+przeglady_rejestracyjne_auto.licznik_aktualny.FKauto.flota.licznik_aktualny

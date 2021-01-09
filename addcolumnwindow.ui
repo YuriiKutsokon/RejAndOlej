@@ -190,6 +190,19 @@
     </property>
    </widget>
   </widget>
+  <widget class="QCheckBox" name="checkBox_isNextService">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>200</y>
+     <width>131</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>kolejny przegląd</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections>

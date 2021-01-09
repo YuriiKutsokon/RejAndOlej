@@ -172,8 +172,12 @@ void MainWindow::display(QSqlQuery query, int param)
 
 void MainWindow::insertQTableWidgetRow(QStringList colNames, QStringList colTypes)
 {
+    IOProcessor iop;
     QStringList insertValues;
-    QString strInsertValues = "";
+    QString strInsertValues = "", cellType;
+    bool checkParentID = true;
+    QMap<QString, QString> foreignVals;
+    int parentID = NULL;
 
 
     for (int i = 0; i < colNames.size(); i++)
@@ -185,23 +189,80 @@ void MainWindow::insertQTableWidgetRow(QStringList colNames, QStringList colType
             ui->main_Table->setItem(ui->main_Table->currentRow(), i, item);
         }
 
-        if (item->text() != "")
+        if (dataProcessor->hasDependency(currentTable, colNames[i]) &&
+                !dataProcessor->isAutoFill(currentTable,colNames[i]))
+            cellType = item->tableWidget()->cellWidget(item->tableWidget()->currentRow(), i)->metaObject()->className();
+        else
+            cellType = "";
+
+        if (!cellType.contains("QComboBox"))
         {
-            insertValues.append(item->text());
-        }
-        else if (i == ui->main_Table->currentColumn())
-        {
-         insertValues.append(item->text());
-        }
-        else if (colTypes[i].contains("INTEGER") || colTypes[i].contains("int"))
-        {
-            insertValues.append("0");
+            QString itemText = item->text();
+
+            if (colNames[i].contains("_fk"))
+            {
+                if (itemText == "")
+                    checkParentID = false;
+                else
+                {
+                    insertValues.append(itemText);
+                    parentID = itemText.toInt();
+                }
+
+            }
+            else if (itemText != "")
+            {
+                insertValues.append(itemText);
+            }
+            else if (colTypes[i].contains("INTEGER") || colTypes[i].contains("int"))
+            {
+                insertValues.append("0");
+            }
+            else
+                insertValues.append("-");
         }
         else
-            insertValues.append("-");
+        {
+            QString itemText = qobject_cast<QComboBox*>(item->tableWidget()->cellWidget(item->tableWidget()->currentRow(),
+                                                                                        i))->currentText();
+            if (itemText != "")
+            {
+                insertValues.append(itemText);
+            }
+            else if (colTypes[i].contains("INTEGER") || colTypes[i].contains("int"))
+            {
+                insertValues.append("0");
+            }
+            else
+                insertValues.append("-");
+
+            foreignVals[colNames[i]] = insertValues.last();
+
+        }
+
     }
-    strInsertValues = dataProcessor->getValueParams(colTypes, insertValues);
-    dataProcessor->insertRecord(currentTable, strInsertValues, colNames);
+
+    if (checkParentID)
+    {
+        if (!foreignVals.isEmpty())
+        {
+            if (iop.checkInput(currentTable,foreignVals,parentID))
+            {
+                strInsertValues = dataProcessor->getValueParams(colTypes, insertValues);
+                dataProcessor->insertRecord(currentTable, strInsertValues, colNames);
+            }
+            else
+                qDebug() << "The row " + QString::number(parentID) + " in parent table with selected data does not exist!";
+        }
+        else
+        {
+            strInsertValues = dataProcessor->getValueParams(colTypes, insertValues);
+            dataProcessor->insertRecord(currentTable, strInsertValues, colNames);
+        }
+
+    }
+    else
+        qDebug() << "Please, enter id of the parent table raw!";
 
 }
 
@@ -211,50 +272,112 @@ void MainWindow::updateQTableWidgetRow(QStringList colNames, QStringList colType
     QStringList values;
     QStringList columnNames;
     QMap<QString, QString> foreginVals;
-    QTableWidgetItem *item = ui->main_Table->currentItem();
-    if(!item)
-    {
-        item = new QTableWidgetItem();
-        ui->main_Table->setItem(ui->main_Table->currentRow(), ui->main_Table->currentColumn(), item);
-    }
 
     QString cellType;
     int parentID;
 
-    if (dataProcessor->hasDependency(currentTable, colNames[ui->main_Table->currentColumn()]) &&
-            !dataProcessor->isAutoFill(currentTable,colNames[ui->main_Table->currentColumn()]))
-        cellType = item->tableWidget()->cellWidget(item->tableWidget()->currentRow(), item->tableWidget()->currentColumn())->metaObject()->className();
-    else
-        cellType = "";
-
-    if (cellType.contains("QComboBox") && colTypes[ui->main_Table->currentColumn()].contains("INTEGER"))
+    for (int i = 0; i < colNames.size(); i++)
     {
-        values.append(qobject_cast<QComboBox*>(item->tableWidget()->cellWidget(item->tableWidget()->currentRow(),
-                                                                               item->tableWidget()->currentColumn()))->currentText());
-        foreginVals[colNames[ui->main_Table->currentColumn()]] = values[0];
-        parentID = dataProcessor->getValue(currentTable, ui->main_Table->currentRow(),
-                                           dataProcessor->getParentColumnName(currentTable,colNames[ui->main_Table->currentColumn()])).toInt();
-    }
-    else if (cellType.contains("QComboBox"))
-    {
-        values.append("'" + qobject_cast<QComboBox*>(item->tableWidget()->cellWidget(item->tableWidget()->currentRow(),
-                                                                                     item->tableWidget()->currentColumn()))->currentText() + "'");
-        foreginVals[colNames[ui->main_Table->currentColumn()]] = values[0];
-        parentID = dataProcessor->getValue(currentTable, ui->main_Table->currentRow(),
-                                           dataProcessor->getParentColumnName(currentTable,colNames[ui->main_Table->currentColumn()])).toInt();
-    }
+        QTableWidgetItem *item = ui->main_Table->item(ui->main_Table->currentRow(), i);
 
-    else if (colTypes[ui->main_Table->currentColumn()].contains("INTEGER"))
-        values.append(item->text());
-    else
-        values.append("'" + item->text() + "'");
+        if(!item)
+        {
+            item = new QTableWidgetItem();
+            ui->main_Table->setItem(ui->main_Table->currentRow(), i, item);
+        }
 
+        if (dataProcessor->hasDependency(currentTable, colNames[i]) &&
+                !dataProcessor->isAutoFill(currentTable,colNames[i]))
+            cellType = item->tableWidget()->cellWidget(item->tableWidget()->currentRow(), i)->metaObject()->className();
+        else
+            cellType = "";
+
+        if (cellType.contains("QComboBox") && colTypes[i].contains("INTEGER"))
+        {
+            QString tempval = qobject_cast<QComboBox*>(item->tableWidget()->cellWidget(item->tableWidget()->currentRow(),
+                                                                                       i))->currentText();
+            if (tempval != dataProcessor->getValue(currentTable,item->tableWidget()->currentRow(),colNames[i]))
+            {
+                //QString checkval = dataProcessor->getFKColumnName(currentTable,colNames[i]);
+                values.append(tempval);
+                foreginVals[colNames[i]] = values.last();
+                parentID = dataProcessor->getValue(currentTable, item->tableWidget()->currentRow(),
+                                                   dataProcessor->getFKColumnName(currentTable,colNames[i])).toInt();
+                columnNames.append(colNames[i]);
+
+            }
+        }
+        else if (cellType.contains("QComboBox"))
+        {
+            QString tempval =qobject_cast<QComboBox*>(item->tableWidget()->cellWidget(item->tableWidget()->currentRow(),
+                                                                                       i))->currentText();
+            if (tempval != dataProcessor->getValue(currentTable,item->tableWidget()->currentRow(),colNames[i]))
+            {
+                values.append(tempval);
+                foreginVals[colNames[i]] = values.last();
+                values.last() = "'" + values.last() + "'";
+                parentID = dataProcessor->getValue(currentTable, item->tableWidget()->currentRow(),
+                                                   dataProcessor->getFKColumnName(currentTable,colNames[i])).toInt();
+                columnNames.append(colNames[i]);
+
+            }
+        }
+
+        else if (colTypes[i].contains("INTEGER"))
+        {
+            if (currentTable.contains("_auto") && colNames[i].contains("licznik"))
+            {
+                QString tempval = item->text(), prevVal = dataProcessor->getValue(currentTable,item->tableWidget()->currentRow(),colNames[i]);
+
+                if (tempval != prevVal && (tempval != "" || tempval != "-"))
+                {
+                    int busID = dataProcessor->getValue("flota", item->tableWidget()->currentRow(), "autobusy_id_fk").toInt(), km_to_service;
+                    unsigned long licznik_actual = dataProcessor->getValue("flota", item->tableWidget()->currentRow(), "licznik_aktualny").toULong(), licznik_prevOT = tempval.toULong();
+                    unsigned int service_cycle = dataProcessor->getValue("autobusy", busID, "km_do_przegladu_serwisowego").toUInt();
+                    km_to_service = service_cycle - (licznik_actual - licznik_prevOT);
+                    if (columnNames.contains("km_do_nastepnego_przegladu"))
+                    {
+                        values.replace(columnNames.indexOf("km_do_nastepnego_przegladu"), QString::number(km_to_service));
+                    }
+                    else
+                    {
+                        values.append(QString::number(km_to_service));
+                        columnNames.append("km_do_nastepnego_przegladu");
+                    }
+                    values.append(tempval);
+                    columnNames.append(colNames[i]);
+                 }
+            }
+            else
+            {
+                QString tempval = item->text(), prevVal = dataProcessor->getValue(currentTable,item->tableWidget()->currentRow(),colNames[i]);
+
+                if (tempval != prevVal)
+                {
+                    values.append(tempval);
+                    columnNames.append(colNames[i]);
+
+                }
+            }
+        }
+        else
+        {
+            QString tempval = item->text(), prevVal = dataProcessor->getValue(currentTable,item->tableWidget()->currentRow(),colNames[i]);
+            if (tempval != prevVal)
+            {
+                values.append("'" + tempval + "'");
+                columnNames.append(colNames[i]);
+
+            }
+        }
+
+    }
 
     if (!foreginVals.isEmpty())
     {
         if (inputCheck.checkInput(currentTable,foreginVals,parentID))
         {
-            columnNames.append(colNames[ui->main_Table->currentColumn()]);
+
             dataProcessor->updateRecord(currentTable, columnNames, values, ui->main_Table->currentRow());
         }
         else
@@ -262,7 +385,7 @@ void MainWindow::updateQTableWidgetRow(QStringList colNames, QStringList colType
     }
     else
     {
-        columnNames.append(colNames[ui->main_Table->currentColumn()]);
+        //columnNames.append(colNames[ui->main_Table->currentColumn()]);
         dataProcessor->updateRecord(currentTable, columnNames, values, ui->main_Table->currentRow());
     }
 }
@@ -331,38 +454,50 @@ void MainWindow::on_button_addKolumn_clicked()
 
     if (acw.exec())
     {
-        if (acw.getForeginKeyStatus() != "")
+        if (!acw.isNextService())
         {
-            dependency = dataProcessor->getCurrentTable() + acw.getForeginKeyStatus();
-            tfp.writeToFile(DEPENDENCIES_PATH, dependency, WriteToFileParams::To_End_Of_File);
-        }
+            if (acw.getForeginKeyStatus() != "")
+            {
+                dependency = dataProcessor->getCurrentTable() + acw.getForeginKeyStatus();
+                tfp.writeToFile(DEPENDENCIES_PATH, dependency, WriteToFileParams::To_End_Of_File);
+            }
 
-        QString param = "";
+            QString param = "";
 
-        if (acw.getUniqueStatus() != "" && acw.getPrimaryKeyStatus() != "")
-        {
-            param = acw.getUniqueStatus() + " " + acw.getPrimaryKeyStatus();
-            parameters.append(param);
-        }
-        else if (acw.getUniqueStatus() != "" || acw.getPrimaryKeyStatus() != "")
-        {
-            if (acw.getUniqueStatus() != "")
-                param = acw.getUniqueStatus();
+            if (acw.getUniqueStatus() != "" && acw.getPrimaryKeyStatus() != "")
+            {
+                param = acw.getUniqueStatus() + " " + acw.getPrimaryKeyStatus();
+                parameters.append(param);
+            }
+            else if (acw.getUniqueStatus() != "" || acw.getPrimaryKeyStatus() != "")
+            {
+                if (acw.getUniqueStatus() != "")
+                    param = acw.getUniqueStatus();
 
-            if (acw.getPrimaryKeyStatus() != "")
-                param = acw.getPrimaryKeyStatus();
-            parameters.append(param);
-        }
+                if (acw.getPrimaryKeyStatus() != "")
+                    param = acw.getPrimaryKeyStatus();
+                parameters.append(param);
+            }
 
 
-        if (param != "")
-        {
-            colNames.append(acw.getColName());
-            colTypes.append(acw.getColType());
-            dataProcessor->addColumn(currentTable, colNames, colTypes, parameters);
+            if (param != "")
+            {
+                colNames.append(acw.getColName());
+                colTypes.append(acw.getColType());
+                dataProcessor->addColumn(currentTable, colNames, colTypes, parameters);
+            }
+            else
+                dataProcessor->addColumn(currentTable, acw.getColName(), acw.getColType());
         }
         else
-            dataProcessor->addColumn(currentTable, acw.getColName(), acw.getColType());
+        {
+            int servicesCount = dataProcessor->getServicesCount(currentTable);
+            QString newColName = QString("OT%1").arg(servicesCount + 1);
+            dataProcessor->addColumn(currentTable, newColName, "TEXT");
+            newColName = QString("licznik_%1").arg(servicesCount + 1);
+            dataProcessor->addColumn(currentTable, newColName, "INTEGER");
+
+        }
     }
 
 
@@ -534,6 +669,7 @@ void MainWindow::on_select_current_table()
         currentTable = str;
         QSqlQuery query = dataProcessor->selectAll(currentTable);
         ui->label_tableName->setText(currentTable);
+        lastSelectQuery = "";
 
         display(query, DEFAULT);
     }
@@ -544,6 +680,7 @@ void MainWindow::on_select_current_table()
 void MainWindow::on_actionRefresh_triggered()
 {
     QSqlQuery query = dataProcessor->selectAll(currentTable);
+    lastSelectQuery = "";
     display(query, DEFAULT);
 }
 
@@ -591,5 +728,6 @@ void MainWindow::on_print_prewiew_needs(QPrinter *poPrinter_p)
 
 void MainWindow::on_pushButton_clicked()
 {
-    dataProcessor->addParameter(dataProcessor->getCurrentTable(), "id", "PRIMARY KEY");
+    IOProcessor iop;
+    iop.tableAutoFill("przeglady_rejestracyjne_auto");
 }

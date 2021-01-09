@@ -59,6 +59,14 @@ QString AddColumnWindow::getForeginKeyStatus()
     else return "";
 }
 
+bool AddColumnWindow::isNextService()
+{
+    if (ui->checkBox_isNextService->isChecked())
+        return true;
+    else
+        return false;
+}
+
 void AddColumnWindow::init_FK_comboBoxes()
 {
     DataProcessor dp;
@@ -92,6 +100,27 @@ void AddColumnWindow::on_comboBox_FK_Table_currentIndexChanged(const QString &ar
 {
     DataProcessor dp;
     ui->comboBox_FK_Column->clear();
-    //ui->comboBox_FK_Column->addItems(dp.getColNames(ui->comboBox_FK_Table->currentText()));
     ui->comboBox_FK_Column->addItems(dp.getColNames(arg1));
+}
+
+void AddColumnWindow::on_checkBox_stateChanged(int arg1)
+{
+
+}
+
+void AddColumnWindow::on_checkBox_isNextService_stateChanged(int arg1)
+{
+    if (arg1 == 2)
+    {
+        ui->comboBox_colType ->setEnabled(false);
+        ui->lineEdit_colName->clear();
+        ui->lineEdit_colName->setEnabled(false);
+        ui->checkBox_ForeginKey->setEnabled(false);
+    }
+    else
+    {
+        ui->comboBox_colType ->setEnabled(true);
+        ui->lineEdit_colName->setEnabled(true);
+        ui->checkBox_ForeginKey->setEnabled(true);
+    }
 }

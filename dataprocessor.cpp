@@ -73,6 +73,68 @@ QString DataProcessor::getCurrentTable()
 void DataProcessor::setCurrentTable(QString tableName)
 {
     currentTable = tableName;
+
+    if (tableName.contains("_auto"))
+    {
+        QStringList depSplitted = findDependency(tableName, "id").split("."), colsToInsert;
+        QString parentTable = depSplitted[3];
+        QStringList parentCols = getColNames(parentTable), parentColsToInsert;
+        QSqlQuery parent = selectAll(parentTable), inherited = selectAll(tableName);
+        int parentRowCount = getRowNum(parent), inheritedRowCount = getRowNum(inherited);
+
+        QStringList dependencies = getDependenies(tableName);
+
+        for (auto dep : dependencies)
+        {
+            depSplitted = dep.split(".");
+            colsToInsert.append(depSplitted[1]);
+            parentColsToInsert.append(depSplitted[4].remove("\n"));
+        }
+
+
+
+        parent.exec(parent.lastQuery());
+            while (parent.next())
+               {
+                if (parent.at() > inheritedRowCount - 1)
+                   {
+                       QStringList values, parentVals = getQuerySelectResultRecords(parent)[parent.at() + 1].split(" ");
+                       int parentValCount = parentVals.size();
+
+                       for (int i = 0, j = 0; i < parentValCount; i++)
+                       {
+                           if (parentColsToInsert.contains(parentCols[i]))
+                           {
+                               if (getType(tableName, colsToInsert[j]).contains("INTEGER") || getType(tableName, colsToInsert[j]).contains("int"))
+                                   values.append(parentVals[i]);
+                               else
+                                   values.append("'" + parentVals[i] + "'");
+                               j++;
+                           }
+                       }
+                       insertRecord(tableName, attachStringList(values,", "), colsToInsert);
+                   }
+                else
+                {
+                    QStringList parentVals = getQuerySelectResultRecords(parent)[parent.at() + 1].split(" "), values;
+
+                        for (int i = 0, j = 0; i < parentVals.size(); i++)
+                        {
+                            if (parentColsToInsert.contains(parentCols[i]))
+                            {
+                                if (getType(tableName, colsToInsert[j]).contains("INTEGER") || getType(tableName, colsToInsert[j]).contains("int"))
+                                    values.append(parentVals[i]);
+                                else
+                                    values.append("'" + parentVals[i] + "'");
+                                j++;
+                            }
+                        }
+                        updateRecord(tableName, colsToInsert, values, parent.at());
+
+                }
+               }
+
+    }
 }
 
 void DataProcessor::addTable(QString tableName)
@@ -191,7 +253,7 @@ void DataProcessor::addColumn(QString tableName, QString newColName, QString new
     else
         qDebug() << "column " << newColName << " had been successfully added!" ;
 
-    saveToFileValues = "\n" + newColName + " " + newColType;
+    saveToFileValues = newColName + " " + newColType + "\n";
 
 
     tfp.writeToFile(saveToFilePath, saveToFileValues, WriteToFileParams::To_End_Of_File);
@@ -289,7 +351,7 @@ void DataProcessor::deleteColumn(QString tableName, int index)
             if (params[i] == "")
                 saveToFileValues += colNames[i] + " " + colTypes[i] + "\n";
             else
-                saveToFileValues += colNames[i] + " " + colTypes[i] + " " + params[i];
+                saveToFileValues += colNames[i] + " " + colTypes[i] + " " + params[i] + "\n";
 
             if (params[i].contains("PK"))
             {
@@ -447,7 +509,7 @@ void DataProcessor::updateRecord(QString tableName, QStringList colNames, QStrin
 
     for (int i = 0; i < values.size(); i++)
     {
-        updateValues = colNames[i] + " = " + values[i] + ", ";
+        updateValues += colNames[i] + " = " + values[i] + ", ";
     }
     updateValues = updateValues.left(updateValues.lastIndexOf(','));
     QString strQuery = "UPDATE " + tableName + " SET " + updateValues + " WHERE id=" + strRecordId;
@@ -462,6 +524,7 @@ void DataProcessor::updateRecord(QString tableName, QStringList colNames, QStrin
 void DataProcessor::initDatabase(QString defaultsPath)
 {
     TextFileProcessor tfp;
+    IOProcessor iop;
     QDir defaults(defaultsPath);
     QStringList filters, fileNames, columns, colNames, colTypes, params;
     QStringList temp;
@@ -498,6 +561,12 @@ void DataProcessor::initDatabase(QString defaultsPath)
                 else params.append("");
             }
             addTable(defaultTableNames[i],colNames,colTypes, params);
+
+            if (defaultTableNames[i].contains("auto"))
+            {
+                iop.tableAutoFill(defaultTableNames[i]);
+            }
+
             colNames.clear();
             colTypes.clear();
             params.clear();
@@ -652,7 +721,11 @@ QSqlQuery DataProcessor::selectExact(QString tableName, QStringList colNames, QS
     strSelect = strSelect.left(strSelect.lastIndexOf('A'));
     if (colsToShowConditions.isEmpty())
     {
-        strQuery = "SELECT * FROM " + tableName + " WHERE " + strSelect;
+        if (strSelect != "")
+            strQuery = "SELECT * FROM " + tableName + " WHERE " + strSelect;
+        else
+            strQuery = "SELECT * FROM " + tableName;
+
         b = query.exec(strQuery);
         if (!b)
             qDebug() << query.lastError();
@@ -668,7 +741,11 @@ QSqlQuery DataProcessor::selectExact(QString tableName, QStringList colNames, QS
         }
         strColsToShow = strColsToShow.left(strColsToShow.lastIndexOf(','));
 
-        strQuery = "SELECT " + strColsToShow + " FROM " + tableName + " WHERE " + strSelect;
+        if (strSelect != "")
+            strQuery = "SELECT " + strColsToShow + " FROM " + tableName + " WHERE " + strSelect;
+        else
+            strQuery = "SELECT " + strColsToShow + " FROM " + tableName;
+
         b = query.exec(strQuery);
         if (!b)
             qDebug() << query.lastError();
@@ -718,6 +795,19 @@ int DataProcessor::getRowNum(QSqlQuery query)
         rowCount++;
     }
     return rowCount;
+}
+
+int DataProcessor::getServicesCount(QString tableName)
+{
+    QStringList colNames = getColNames(tableName);
+    int count = 0;
+    for (auto colName : colNames)
+    {
+        if (colName.contains("licznik_") && !colName.contains("licznik_a"))
+            count++;
+    }
+
+    return count;
 }
 
 QStringList DataProcessor::getColNames(QString tableName)
@@ -825,12 +915,32 @@ QStringList DataProcessor::getQuerySelectResultRecords(QSqlQuery query)
     return result;
 }
 
-bool DataProcessor::hasDependency(QString tableName, QString colName)
+QStringList DataProcessor::getDependenies(QString tableName)
 {
-    QString tablePath = getDependenciesPath(), strColumn;
     TextFileProcessor tfp;
 
-    QStringList cols = tfp.readFromFile(tablePath), colParts;
+    if (tableName == "")
+        return tfp.readFromFile(getDependenciesPath());
+    else
+    {
+        QStringList dependencies = tfp.readFromFile(getDependenciesPath());
+        for (auto dep : dependencies)
+        {
+            QStringList depSplitted = dep.split(".");
+            if (!depSplitted[0].contains(tableName))
+            {
+                dependencies.removeOne(dep);
+            }
+        }
+        return dependencies;
+    }
+}
+
+bool DataProcessor::hasDependency(QString tableName, QString colName)
+{
+    QString strColumn;
+
+    QStringList cols = getDependenies(), colParts;
 
            for (auto column : cols)
         {
@@ -946,6 +1056,17 @@ QString DataProcessor::getValue(QSqlQuery query, int recordNum, int colNum)
     return value;
 }
 
+QString DataProcessor::getType(QString tableName, QString colName)
+{
+    QStringList colTypes = getColTypes(tableName), colNames = getColNames(tableName);
+
+    for (int i = 0; i < colNames.size(); i++)
+    {
+           if (colNames[i] == colName)
+               return colTypes[i];
+    }
+}
+
 QString DataProcessor::getValueParams(QStringList typeNames, QStringList paramVals)
 {
     QString tempstr = "", result = "";
@@ -976,7 +1097,7 @@ QString DataProcessor::getTablePath(QString tableName)
     return tablePath;
 }
 
-QString DataProcessor::getParentColumnName(QString tableName, QString colName)
+QString DataProcessor::getFKColumnName(QString tableName, QString colName)
 {
     TextFileProcessor tfp;
     QString depPath = getDependenciesPath(), parentColName = "";
@@ -986,7 +1107,7 @@ QString DataProcessor::getParentColumnName(QString tableName, QString colName)
     {
         QStringList depSplitted = dep.split(".");
         if (depSplitted[0].contains(tableName) && depSplitted[1].contains(colName))
-            return depSplitted[2] + "_" + depSplitted[3] + "_fk";
+            return depSplitted[3] + "_id_fk";
     }
 
     return "";
@@ -998,6 +1119,50 @@ QString DataProcessor::getDependenciesPath()
     depPath = depPath.left(depPath.lastIndexOf('/'));
     depPath += DEPENDENCIES_PATH;
     return depPath;
+}
+
+QString DataProcessor::findDependency(QString tableName, QString colName)
+{
+    QStringList dependencies = getDependenies(tableName);
+    QString result;
+    for (auto dep : dependencies)
+    {
+        if (dep.contains(tableName + "." + colName + "."))
+            result = dep;
+    }
+    return result;
+}
+
+QString DataProcessor::attachStringList(QStringList stringList, QString separator)
+{
+    QString result;
+
+    for (auto str : stringList)
+        result += str + separator;
+
+    if (separator.contains(" "))
+        separator.remove(" ");
+
+    result = result.left(result.lastIndexOf(separator));
+   /*
+    if (separator.contains(','))
+        result = result.left(result.lastIndexOf(','));
+    else if (separator.contains('.'))
+        result = result.left(result.lastIndexOf('.'));
+    */
+
+    return result;
+}
+
+void DataProcessor::executeQuery(QString query)
+{
+    QSqlQuery q;
+    bool b;
+    b = q.exec(query);
+    if (!b)
+        qDebug() << q.lastError();
+    else
+        qDebug() << query << " executed successfully!";
 }
 
 

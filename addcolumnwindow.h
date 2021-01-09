@@ -20,6 +20,7 @@ public:
     QString getUniqueStatus();
     QString getPrimaryKeyStatus();
     QString getForeginKeyStatus();
+    bool isNextService();
 
     void init_FK_comboBoxes();
 
@@ -27,6 +28,10 @@ private slots:
     void on_checkBox_ForeginKey_stateChanged(int arg1);
 
     void on_comboBox_FK_Table_currentIndexChanged(const QString &arg1);
+
+    void on_checkBox_stateChanged(int arg1);
+
+    void on_checkBox_isNextService_stateChanged(int arg1);
 
 private:
     Ui::AddColumnWindow *ui;
